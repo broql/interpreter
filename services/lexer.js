@@ -1,6 +1,8 @@
-const isDigit = (char) => { return /[0-9]/.test(char); }
-const isWhiteSpace = (char) => { return /\s/.test(char); }
-const isOperator = (char) => { return /[+\-*\/\^%=(),]/.test(char); }
+const _ = require('lodash')
+
+const isDigit = (char) => { return /[0-9]/.test(char) }
+const isWhiteSpace = (char) => { return /\s/.test(char) }
+const isOperator = (char) => { return /[+\-*\/\^%=(),]/.test(char) }
 
 const types = [
     {
@@ -17,26 +19,48 @@ const types = [
     }
 ]
 
-const recognize = (char) => {
+const notRecognizedError = (char) => {
+    throw Error('Unrecognized character: ' + char)
+}
 
+const recognize = (char) => {
     const type = types.find(entry => {
         return entry.comparator(char)
     })
-
-    return type ? type.name : 'NotRecognized'
+    return type ? type.name : notRecognizedError(char)
 }
 
-const tokenize = (input) => {
-    const inputArr = Array.prototype.slice.call(input);
+const createTokens = (char) => {
+    const recognizedToken = recognize(char);
+    return {
+        type: recognizedToken,
+        value: char
+    }
+}
 
-    const tokens = inputArr.map(char => {
-        return {
-            type: recognize(char),
-            value: char
+const isSameType = (prevToken, token) => {
+    const sameType = (prevToken.type === token.type)
+    if (sameType) {
+        prevToken.value = prevToken.value + token.value
+    }
+    return sameType
+}
+
+const mergeSameType = (tokens) => {
+    let mergedTokens = [];
+    tokens.forEach((token) => {
+        let prevToken = _.last(mergedTokens) || {}
+        if (!isSameType(prevToken, token)) {
+            mergedTokens.push(token)
         }
-    })
+    });
+    return mergedTokens
+}
 
-    return tokens;
+const tokenize = (source) => {
+    const tokens = [...source].map(createTokens)
+    const sameTypeTokensMerged = mergeSameType(tokens)
+    return sameTypeTokensMerged;
 }
 
 module.exports = {
