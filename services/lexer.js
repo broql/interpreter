@@ -39,18 +39,21 @@ const createTokens = (char) => {
 }
 
 const isSameType = (prevToken, token) => {
-    const sameType = (prevToken.type === token.type)
-    if (sameType) {
-        prevToken.value = prevToken.value + token.value
-    }
-    return sameType
+    return (prevToken.type === token.type)
+}
+
+const addSameType = (prevToken, token) => {
+    return prevToken.value + token.value
 }
 
 const mergeSameType = (tokens) => {
     let mergedTokens = [];
     tokens.forEach((token) => {
-        let prevToken = _.last(mergedTokens) || {}
-        if (!isSameType(prevToken, token)) {
+        let prevToken = _.last(mergedTokens) || {};
+        if (isSameType(prevToken, token)) {
+            prevToken.value = addSameType(prevToken, token)
+        }
+        else {
             mergedTokens.push(token)
         }
     });
