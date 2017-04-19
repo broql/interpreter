@@ -1,23 +1,42 @@
-class BinaryTree {
-    constructor(value, left=null, right=null) {
-        this.value = value;
-        this.left = left;
-        this.right = right;
+var fp = require('lodash/fp');
+
+const isLastToken = (tokens, position) => {
+    return (tokens.length === 1 || tokens.length === position + 1)
+};
+
+const unexpectedEndOfInputError = (token) => {
+    throw Error('Unexpected end of input: ' + token)
+}
+
+const setLeaf = (tokens) => {
+
+    const lValue = tokens.next()
+    const tValue = tokens.next()
+
+    if (tValue.done) {
+        return lValue.value
     }
 
-    /** Prefix iteration */
-    * [Symbol.iterator]() {
-        yield this.value;
-        if (this.left) {
-            yield* this.left;
-            // Short for: yield* this.left[Symbol.iterator]()
-        }
-        if (this.right) {
-            yield* this.right;
-        }
+    const tValueExist = {
+        type: tValue.value.value,
+        left: lValue.value,
+        right: setLeaf(tokens)
     }
+
+    const tValueDoesNotExist = lValue
+
+    return tValue ? tValueExist : tValueDoesNotExist
+}
+
+const process = (tokens) => {
+
+    let parseTree = {}
+    const tokenIterator = tokens[Symbol.iterator]();
+
+    parseTree = setLeaf(tokenIterator)
+    return parseTree
 }
 
 module.exports = {
-    BinaryTree
+    process
 }
