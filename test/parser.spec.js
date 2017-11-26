@@ -56,17 +56,35 @@ describe('Parser', () => {
         expect(Parser.process(tokens)).to.deep.equal(parserOutput)
     })
 
-    it('should produce correct parse tree with operator precedence', () => {
+    it('12/4+6, should produce correct parse tree with operator precedence', () => {
         const tokens = Lexer.tokenize('12/4+6')
 
         const parserOutput = {
             type: '+',
             left: {
                 type: '/',
-                left: { type: 'number', value: 12 },
-                right: { type: 'number', value: 4 }
+                left: { type: 'number', value: '12' },
+                right: { type: 'number', value: '4' }
             },
-            right: { type: 'number', value: 6 }
+            right: { type: 'number', value: '6' }
+        }
+
+        // console.log(Parser.process(tokens))
+
+        expect(Parser.process(tokens)).to.deep.equal(parserOutput)
+    })
+
+    xit('12+4/6, should produce correct parse tree with operator precedence part 2', () => {
+        const tokens = Lexer.tokenize('12+4/6')
+
+        const parserOutput = {
+            type: '+',
+            left: { type: 'number', value: '12' },
+            right: {
+                type: '/',
+                left: { type: 'number', value: '4' },
+                right: { type: 'number', value: '6' }
+            }
         }
 
         expect(Parser.process(tokens)).to.deep.equal(parserOutput)

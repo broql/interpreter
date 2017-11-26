@@ -1,39 +1,64 @@
 var fp = require('lodash/fp');
 
-const isLastToken = (tokens, position) => {
-    return (tokens.length === 1 || tokens.length === position + 1)
-};
+// const isLastToken = (tokens, position) => {
+//     return (tokens.length === 1 || tokens.length === position + 1)
+// };
 
-const unexpectedEndOfInputError = (token) => {
-    throw Error('Unexpected end of input: ' + token)
+// const unexpectedEndOfInputError = (token) => {
+//     throw Error('Unexpected end of input: ' + token)
+// }
+
+const operatorPrecedence = {
+    '*': 1,
+    '/': 1,
+    '+': 0,
+    '-': 0
 }
 
-const setLeaf = (tokens) => {
+const setLeaf = (tokenIterator, tokens, tokensIndex) => {
 
-    const lValue = tokens.next()
-    const tValue = tokens.next()
+    const symbol = tokenIterator.next()
+    const type = tokenIterator.next()
 
-    if (tValue.done) {
-        return lValue.value
+    tokensIndex += 2
+
+    if (type.done) {
+        return symbol.value
     }
 
-    const tValueExist = {
-        type: tValue.value.value,
-        left: lValue.value,
-        right: setLeaf(tokens)
+    let typeExist = {};
+
+    const nextType = tokens[tokensIndex + 1] ? operatorPrecedence[tokens[tokensIndex + 1].value] : 0
+    // console.log(tokens[tokensIndex + 1], operatorPrecedence[tokens[tokensIndex + 1].value], nextType, operatorPrecedence[type.value.value])
+    if (tokens[tokensIndex + 1] && nextType < operatorPrecedence[type.value.value]) {
+        typeExist = {
+            type: tokens[tokensIndex + 1].value,
+            left: setLeaf(tokenIterator, tokens, tokensIndex),
+            right: symbol.value
+        }
+    }
+    else {
+        typeExist = {
+            type: type.value.value,
+            left: symbol.value,
+            right: setLeaf(tokenIterator, tokens, tokensIndex)
+        }
     }
 
-    const tValueDoesNotExist = lValue
+    const typeDoesNotExist = symbol
 
-    return tValue ? tValueExist : tValueDoesNotExist
+    return type ? typeExist : typeDoesNotExist
 }
 
 const process = (tokens) => {
 
     let parseTree = {}
-    const tokenIterator = tokens[Symbol.iterator]();
+    const tokenIterator = tokens[Symbol.iterator]()
+    const tokensIndex = 0
 
-    parseTree = setLeaf(tokenIterator)
+    parseTree = setLeaf(tokenIterator, tokens, tokensIndex)
+
+    console.log(parseTree)
     return parseTree
 }
 

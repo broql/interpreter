@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <script>
+        $(document.body).append(
+            '<canvas id="canvas" width="' + diameter + '" height="' + diameter + '"></canvas>'
+        );
+
+
+        var el = $($('svg')[0]);
+        var svgMarkup = '<svg xmlns="http://www.w3.org/2000/svg"'
+            + ' class="' + el.attr('class') + '"'
+            + ' width="' + el.attr('width') + '"'
+            + ' height="' + el.attr('height') + '"'
+            + '>'
+            + $('svg')[0].innerHTML.toString() + '</svg>';
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+        var DOMURL = this.URL || this.webkitURL || this;
+        var img = new Image();
+        var svg = new Blob([svgMarkup], { type: "image/svg+xml;charset=utf-8" });
+        var url = DOMURL.createObjectURL(svg);
+        img.onload = function () {
+            ctx.drawImage(img, 0, 0);
+            alert('ok');
+            DOMURL.revokeObjectURL(url);
+        };
+        img.src = url;
+
+    </script>
+</body>
+
+</html>
